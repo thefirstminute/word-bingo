@@ -1,5 +1,7 @@
 # word-bingo
-word bingo game. these are words you can add...find cash on ground, or stub your pinky toe - you decide how you "win"
+word bingo game; pick your words...find cash on ground, or stub your pinky toe - you decide how you "win"
+
+![screenshot](https://github.com/thefirstminute/word-bingo/blob/c9aa3af29d40db4ccfef9bc970ec27f8900b80d5/word-bingo-screenshot.png)
 
 ### Installation
 1. upload the files
