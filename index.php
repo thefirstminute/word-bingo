@@ -34,16 +34,11 @@ rgba(232,233,236, 1)
 
 /* initial error checks that would break the site {{{ */
 $err='';
-$required_files = array('bingo_players.json', 'bingo_words.txt');
+$required_files = array('bingo_players.json', 'bingo_words.txt', 'game_title.txt');
 foreach ($required_files as $file) {
   if (!file_exists($file)) {
-    if (!touch($file)) $err .= "failed to create $file";
+    if (!touch($file)) $err .= "failed to create $file".PHP_EOL;
   }
-}
-
-function posted($var){
-	if (isset($_POST[$var])) return $_POST[$var];
-	else return '';
 }
 
 if ($err!='') {
@@ -53,6 +48,11 @@ if ($err!='') {
 /* }}} */
 
 /* fucntions & vars {{{ */
+function posted($var){
+	if (isset($_POST[$var])) return $_POST[$var];
+	else return '';
+}
+
 function randomGen($min, $max, $quantity) {
   $numbers = range($min, $max);
   shuffle($numbers);
@@ -64,6 +64,7 @@ $username=$bingo_words='';
 
 $words = file("bingo_words.txt");
 $word_rows = count($words)-1;
+$game_title = file_get_contents('game_title.txt');
 
 $data = file_get_contents('bingo_players.json');
 $users = json_decode($data, true);
@@ -175,231 +176,9 @@ if (posted('update_square')!='' && $logged_in==true) {
   <meta charset="UTF-8">
   <title>Bingo</title>
   <link rel="shortcut icon" href="favicon.ico">
-  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Montserrat&display=swap" rel="stylesheet">
-<!-- style {{{ -->
-<style>
-/* main, text and helpers {{{ */
-* {
-  box-sizing: border-box;
-}
-body {
-  margin:0; padding:0;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-content: center;
-  background-color: #333;
-  font-size: 16px;
-  background: rgba(20, 32, 44, 1);
-  font-family: "Montserrat", sans-serif;
-}
-h1, h2, h3 {
-  font-family: "Bungee", cursive;
-  margin: 0;
-}
-
-a {
-  text-decoration: none;
-  color: rgba(232,233,236, .9);
-}
-
-.wrap {
-  max-width: 720px;
-  width: 100%;
-  margin: 3vh auto 0;
-}
-
-.title {
-  font-size: 36px;
-  background-color: rgba(177, 24, 30, 1);
-  color: rgba(20,32,44, 1);
-  margin:0;
-  padding: 30px 10px;
-  grid-column: span 5;
-  text-align: center;
-  line-height: 1.9em;
-}
-
-.logo {
-  margin: auto;
-  max-height: 96%;
-  max-width: 96%;
-}
-.logged_in {
-  display: flex;
-  flex-direction: row;
-  margin: 0;
-  padding: 5px 8px;
-  width: 100%;
-  color: rgba(232,233,236, .8);
-  opacity: 0.4;
-}
-.logged_in div {
-  flex: 50%;
-}
-.logged_in:hover {
-  opacity:1;
-  background-color: rgba(70,82,79, 0.8);
-}
-
-.text-left       { text-align:left}
-.text-right      { text-align:right}
-.text-center     { text-align:center}
-
-
-.winners {
-  display: flex;
-  flex-direction: column;
-  margin: 2vh auto;
-  width: 100%;
-  max-width: 420px;
-  padding: 1.5em 2.4em;
-}
-.winners h2 {
-  background-color: rgba(177,24,30, 1);
-  color: rgba(232,233,236, 1);
-  text-align: center;
-  font-size: 30px;
-  line-height:1.8em;
-}
-.winners table {
-  margin: 0 2%;
-  padding: 5px;
-  font-size: 22px;
-  font-weight: 500;
-  background-color: rgba(182,183,186, 0.8);
-}
-/* }}} */
-
-/* Login {{{ */
-.login_box {
-  align-self: center;
-  margin: 0;
-  width: 100%;
-  max-width: 320px;
-  padding: 1.5em 2.4em;
-  background-color: rgba(182,183,186, 0.8);
-}
-.login_field {
-  display: flex;
-  width: 100%;
-  margin:1em 0;
-  font-family: "Montserrat", sans-serif;
-  font-size: 18px;
-  text-align: center;
-  border: 2px dotted;
-  background-color: rgba(232,233,236, 1);
-  padding: .45em .85em;
-}
-.btn {
-  display: flex;
-  margin: 0 auto;
-  padding: .45em .85em;
-  font-family: "Bungee", cursive;
-  font-size: 1.3em;
-  font-weight: 500;
-  background-color: rgba(177, 24, 30, 0.8);
-  color: rgba(232,233,236, 1);
-  border: 2px dotted;
-  cursor: pointer;
-}
-.btn:hover {
-  background-color: rgba(177, 24, 30, 1);
-}
-/* }}} */
-
-/* bingo {{{ */
-.bingo-card {
-  background-color: rgba(70,82,79, 1);
-  width:94%;
-  margin: auto;
-  padding: 10px;
-  display: grid;
-  grid-gap: 3px;
-  grid-template-rows: repeat(5, 110px);
-  grid-template-columns: repeat(5, 1fr);
-  text-transform: uppercase;
-}
-.bingo_square {
-  background-color: rgba(182,183,186, 1);
-  display: flex;
-  align-items: center;
-  text-align: center;
-  justify-content: center;
-  position: relative;
-  cursor: pointer;
-  font-size: 14px;
-  padding: 5px;
-}
-.bingo_square:hover {
-  background-color: rgba(232,233,236, 1);
-}
-.bingo_square:after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  opacity: 0;
-  height: 0;
-}
-.bingo_square.active:after {
-  height: 100%;
-  opacity: 0.4;
-  background-color: rgba(177,24,30, 1);
-}
-.logo_square {
-  background-color: rgba(232,233,236, 1);
-  cursor: default;
-}
-
-@media screen and (max-width: 650px) {
-  .logo_square {
-    display: none;
-  }
-
-  .bingo-card {
-    grid-template-rows: repeat(24, auto);
-    grid-template-columns: auto;
-    margin: 1em;
-  }
-
-  .bingo_square {
-    padding: 22px 10px;
-    font-size: 18px;
-  }
-
-}
-/* }}} */
-
-
-</style>
-<!-- }}}  -->
-<!-- scripts {{{-->
-<script>
-function update_square(div_id){
-	var xreq=new XMLHttpRequest();
-	var x=document.getElementById(div_id);
-  var square=div_id.replace(/\D/g, '');
-
-  if (x.classList.contains('active')) {
-    // true
-    var update_val=0;
-  } else {
-    var update_val=1;
-  }
-  var vars = "update_square=" + square + "&update_val=" + update_val;
-
-	xreq.open("POST", "index.php", true);
-	xreq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xreq.onreadystatechange = function() {
-		if(xreq.readyState == 4 && xreq.status == 200) {
-      x.classList.toggle("active"); 
-		}
-	}
-	xreq.send(vars);
-};
-</script>
-<!-- }}} -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Montserrat&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <script src="scripts.js"></script>
 </head>
 <!-- }}} -->
 <!-- body {{{ -->
@@ -411,7 +190,7 @@ function update_square(div_id){
       <div class="text-left">Logged In As: <?php echo $username; ?> </div>
       <div class="text-right"><a href="?logout=true">logout</a></div>
     </div>
-    <div class="title"><h1>Bingo!</h1></div>
+    <div class="title"><h1><?php echo $game_title; ?></h1></div>
     <div class="bingo-card">
       <div id="square_0"  class="bingo_square<?php if (in_array(0, $gotem)) echo ' active'; ?>" onClick="update_square('square_0')" ><?php echo $words[$bingo_words[0]]; ?></div>
       <div id="square_1"  class="bingo_square<?php if (in_array(1, $gotem)) echo ' active'; ?>" onClick="update_square('square_1')" ><?php echo $words[$bingo_words[1]]; ?></div>
@@ -454,15 +233,17 @@ function update_square(div_id){
   <?php else: ?>
 
   <div class="login_box">
-    <h2 class="text-center">Play Bingo!</h2>
+    <h2 class="text-center">Play <span class="kit"><?php echo $game_title; ?></span></h2>
     <form class="form" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data" method="post">
       <input class="login_field" type="text" name="username" placeholder="username"/>
       <input class="btn" name="user_login" type="submit" value="submit" id="submit" />
     </form>
+
   </div>
 
   <?php endif; ?>
 
+  <a style="position: fixed; bottom:3px; right:3px; opacity: 0.3;" href="admin.php">admin</a>
 </body>
 <!-- }}} -->
 </html>
