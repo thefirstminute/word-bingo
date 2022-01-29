@@ -1,5 +1,5 @@
 # word-bingo
-word bingo game. these are words you can add...find cash on ground, or stub your pinky toe - you dicide how you "win"
+word bingo game. these are words you can add...find cash on ground, or stub your pinky toe - you decide how you "win"
 
 ### Installation
 1. upload the files
