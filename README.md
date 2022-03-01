@@ -16,3 +16,7 @@ word bingo game; pick your words...find cash on ground, or stub your pinky toe -
 After the game finishes you can delete the players to start again from the admin panel.
 
 Note: this is meant to be a friendly game between friends, so there are no passwords for players, just usernames...this could easily be added, if you care.
+
+### Enjoy
+
+BTC: 17GbiZKUTFaRBvTnTXrh1FaXqtFW2buvG5
